@@ -1,0 +1,54 @@
+Import RPi.GPIO as gpio
+Import picamera
+Import time
+Import smtplib
+From email.MIMEMultipart import MIMEMultipart
+From email.MIMEText import MIMEText
+From email.MIMEBase import MIMEBase
+From email import encoders
+From email.mime.image import MIMEImage
+fromaddr = "yourpigmail@gmail.com"
+toaddr = "yourgmail@gmail.com"
+mail = MIMEMultipart()
+Mail[‘from'] = fromaddr
+Mail [‘to'] = toaddr
+Mail ['Subject'] = "Attachment"
+Body = "INTRUDER DETECTED"
+def sendMail(data):
+    mail.attach(MIMEText(body, 'plain'))
+    Print data
+    dat='%s.jpg'%data
+    Print dat
+    attachment = open(dat, 'rb')
+    image=MIMEImage(attachment.read())
+    attachment.close()
+    mail.attach(image)
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(fromaddr, "your password")
+    text = mail.as_string()
+    server.sendmail(fromaddr, toaddr, text)
+    server.quit()
+def capture_image():
+    data= time.strftime("%d_%b_%Y|%H:%M:%S")
+    camera.start_preview()
+    time.sleep(5)
+    print data
+    camera.capture('%s.jpg'%data)
+    camera.stop_preview()
+    time.sleep(1)
+    sendMail(data)
+camera = picamera.PiCamera()
+camera.rotation=180
+camera.awb_mode= 'auto'
+camera.brightness=55
+while 1:
+    if gpio.input(pir)==1:
+        gpio.output(led, HIGH)
+        capture_image()
+        while(gpio.input(pir)==1):
+            time.sleep(1)
+        
+    else:
+        gpio.output(led, LOW)
+        time.sleep(0.01)
